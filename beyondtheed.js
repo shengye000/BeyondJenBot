@@ -199,7 +199,7 @@ client.on('chat', (channel, user, message, self) => {
 	
 	//Everybody, Queue Bot Commands
 	if(message === '!help2'){
-		client.say('beyondtheed', 'Type "!add" to add yourself to the queue. Type "!remove" to remove yourself from the queue. Type "!queue" to see the current queue. Type "!next" to get the next player on the queue. Type "!removeall" to empty the queue. Type "!close" to close the queue and "!open" to open the queue. Type "!help3" to see more commands.');
+		client.say('beyondtheed', 'Type "!add" to add yourself to the queue. Type "!remove" to remove yourself from the queue. Type "!queue" to see the current queue. Type "!next" to get the next player on the queue. Type "!close" to close the queue. Type "!open" to open the queue. Type "!addplayer <user>" to manually add a player to the queue. Type "!removeplayer <user>" to manually remove a player from the queue. Type "!removeall <user>" to empty the queue. Type "!help3" to see more commands.');
 	}
 	
 	//Everybody, Add User to Queue
@@ -305,6 +305,52 @@ client.on('chat', (channel, user, message, self) => {
 		}
 		else{
 			client.say('beyondtheed', 'Sorry, the !close command is only available to the broadcaster.');
+		}
+	}
+	
+	//Jen only. Manually add someone to the queue. Command still works even if queue is closed.
+	if(message.startsWith("!addplayer")){
+		if(user["display-name"] === "beyondtheed"){
+			var command = message.split(' ')[0];
+			var input = message.split(' ')[1];
+			if (command === '!addplayer' && isRealValue(input) && message.split(' ').length == 2){
+				if(!queue.includes(input)){
+					queue.push(input);
+					client.say('beyondtheed', '@' + input + ' has been added to the queue in position ' + queue.length + '.');
+				}
+				else{
+					client.say('beyondtheed', '@' + input + ' is already on the list.');
+				}
+			}
+			else{
+				client.say("beyondtheed", "Error. The command you typed is invalid.");
+			}
+		}
+		else{
+			client.say('beyondtheed', 'Sorry, the !addplayer command is only available to the broadcaster.');
+		}
+	}
+	
+	//Jen only. Manually remove someone to the queue.
+	if(message.startsWith("!removeplayer")){
+		if(user["display-name"] === "beyondtheed"){
+			var command = message.split(' ')[0];
+			var input = message.split(' ')[1];
+			if (command === '!removeplayer' && isRealValue(input) && message.split(' ').length == 2){
+				if(queue.includes(input)){
+					queue = queue.filter(e => e !== input); 
+					client.say('beyondtheed', '@' + input + ' has been removed from the queue.');
+				}
+				else{
+					client.say('beyondtheed', '@' + input + ' is not in the queue.');
+				}
+			}
+			else{
+				client.say("beyondtheed", "Error. The command you typed is invalid.");
+			}
+		}
+		else{
+			client.say('beyondtheed', 'Sorry, the !removeplayer command is only available to the broadcaster.');
 		}
 	}
 	
