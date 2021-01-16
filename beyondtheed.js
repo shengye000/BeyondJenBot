@@ -4,6 +4,12 @@ var game = 1;			//current game
 var queueOpen = true;	//queue open/closed status
 var fs = require('fs')	//read and write required stuff
 var yawncounter = 0;	//yawn counter
+var specialcounter = 0;	//special counter
+
+//get rid of !, capitalize first letter of a string
+function capitalizeFirstLetter(string) {
+  return string.charAt(1).toUpperCase() + string.slice(2);
+}
 
 //checks if string is an integer
 function isInt(value) {
@@ -49,6 +55,25 @@ function saveYawn(){
 	return 0;
 }
 
+//save special counter
+function saveSpecial(){
+	var dt = new Date().toLocaleString();
+	var str = dt + " = " + specialcounter + ' \n';
+	fs.appendFile('special.txt', str, function (err) {
+		if (err) {
+			// save failed
+			console.log("special.text save failed.");
+		} 
+	})
+	//save for next time usage
+	fs.writeFile('prevspecial.txt', parseInt(specialcounter, 10).toString(), (err) => {
+		if (err){
+			console.log("prevspecial.text save failed.");
+		} 
+	});
+	return 0;
+}
+
 //used to check if a user has badges, otherwise will crash the bot. 
 function isRealValue(obj)
 {
@@ -66,8 +91,10 @@ const options = {
 		reconnect: true,
 	},
 	identity: {
-		username: 'xxxxxxxxxxxxx',
-		password: 'oauth:xxxxxxxxxxxxxxxxxxxxxxxxxxxxx',
+		//username: 'xxxxxxxxxxxxx',
+		//password: 'oauth:xxxxxxxxxxxxxxxxxxxxxxxxxxxxx',
+		username: 'capktwitchbot',
+		password: 'oauth:finx0wpwr2u8rulrimtcrupvporog7',
 	},
 	channels: ['beyondtheed'],
 };
@@ -81,43 +108,36 @@ client.on('connected', (address, port) => {
 	client.say('beyondtheed', `/color Green`);
 	
 	//check previous fun and yawn counters
-	var prev = false;
 	if(fs.existsSync('prev.txt')) {
 		var content = fs.readFileSync('prev.txt', 'utf-8');
 		if(isInt(content)){
 			counter = parseInt(content);
-			prev = true;
 		}
 	}
-	var prevyawn = false;
+
 	if(fs.existsSync('prevyawn.txt')) {
 		var content = fs.readFileSync('prevyawn.txt', 'utf-8');
 		if(isInt(content)){
 			yawncounter = parseInt(content);
-			prevyawn = true;
 		}
 	}
 	
-	if(prev && prevyawn){
-		client.say('beyondtheed', 'The BeyondJenBot Is Awake. The previous fun counter of ' + counter + ' and yawn counter of ' + yawncounter + ' have been loaded successfully. The list of commands for the Fun Bot are in: "!help". The list of commands for the Queue Bot are in: "!help2". The list of commands for the Game Bot are in "!help3". The list of commands for the Yawn Bot are in "!help4".');
-	}
-	else if(prev){
-		client.say('beyondtheed', 'The BeyondJenBot Is Awake. The previous fun counter of ' + counter + ' has been successfully loaded, but the yawn counter cannot be loaded and is thus set to 0. The list of commands for the Fun Bot are in: "!help". The list of commands for the Queue Bot are in: "!help2". The list of commands for the Game Bot are in "!help3". The list of commands for the Yawn Bot are in "!help4".');
-	}
-	else if(prevyawn){
-		client.say('beyondtheed', 'The BeyondJenBot Is Awake. The previous yawn counter of ' + yawncounter + ' has been successfully loaded, but the fun counter cannot be loaded and is thus set to 0. The list of commands for the Fun Bot are in: "!help". The list of commands for the Queue Bot are in: "!help2". The list of commands for the Game Bot are in "!help3". The list of commands for the Yawn Bot are in "!help4".');
-	}
-	else{
-		client.say('beyondtheed', 'The BeyondJenBot Is Awake. The previous fun counter and yawn counter cannot be loaded, so both are set to 0. The list of commands for the Fun Bot are in: "!help". The list of commands for the Queue Bot are in: "!help2". The list of commands for the Game Bot are in "!help3". The list of commands for the Yawn Bot are in "!help4".');
+	if(fs.existsSync('prevspecial.txt')){
+		var content = fs.readFileSync('prevspecial.txt', 'utf-8');
+		if(isInt(content)){
+			specialcounter = parseInt(content);
+		}
 	}
 	
+	client.say('beyondtheed', 'The BeyondJenBot is awake. The fun counter is at ' + counter + '. The yawn counter is at ' + yawncounter + '. The special counter is at ' + specialcounter + '. The list of commands for the Fun Bot are in: "!help", the Queue Bot in: "!help2", the Game Bot in "!help3", the Yawn Bot in "!help4", and the Special Bot in "!help5".');
+
 });
 
 client.on('chat', (channel, user, message, self) => {
 	
 	//everybody, Fun Bot Commands
 	if(message === '!help'){
-		client.say('beyondtheed', 'Type "!fun" to add the fun counter by 1. Type "!fun <value>" to add the fun counter with a specific value. (Example: Type "!fun 2" to increment the counter by 2.) Type "!resetfun" to reset the fun counter to 0. Type "!setfun <value>" to set the fun counter to a specific value. (Example: Type "!setfun 6" to set the counter to 6.) Type "!currfun" to see the current fun counter. Type "!save" to manually save the fun counter. Type "!help2" to see more commands.');
+		client.say('beyondtheed', 'Type "!fun" to add the fun counter by 1. Type "!fun <value>" to add the fun counter with a specific value. (Example: Type "!fun 2" to increment the counter by 2.) Type "!resetfun" to reset the fun counter to 0. Type "!setfun <value>" to set the fun counter to a specific value. (Example: Type "!setfun 6" to set the counter to 6.) Type "!currfun" to see the current fun counter. Type "!save" to manually save the fun counter.');
 	}
 	
 	//all Fun Bot commands
@@ -188,10 +208,11 @@ client.on('chat', (channel, user, message, self) => {
 			//save to history
 			saveFun();
 			saveYawn();
+			saveSpecial();
 			client.say("beyondtheed", "Saved.");
 		}
 		else{
-			client.say("beyondtheed", "Sorry, you do not have the permissions to use the !savefun command.");
+			client.say("beyondtheed", "Sorry, you do not have the permissions to use the !save command.");
 		}
 	}
 	
@@ -199,7 +220,7 @@ client.on('chat', (channel, user, message, self) => {
 	
 	//Everybody, Queue Bot Commands
 	if(message === '!help2'){
-		client.say('beyondtheed', 'Type "!add" to add yourself to the queue. Type "!remove" to remove yourself from the queue. Type "!queue" to see the current queue. Type "!next" to get the next player on the queue. Type "!close" to close the queue. Type "!open" to open the queue. Type "!addplayer <user>" to manually add a player to the queue. Type "!removeplayer <user>" to manually remove a player from the queue. Type "!removeall <user>" to empty the queue. Type "!help3" to see more commands.');
+		client.say('beyondtheed', 'Type "!add" to add yourself to the queue. Type "!remove" to remove yourself from the queue. Type "!queue" to see the current queue. Type "!next" to get the next player on the queue. Type "!close" to close the queue. Type "!open" to open the queue. Type "!addplayer <user>" to manually add a player to the queue. Type "!removeplayer <user>" to manually remove a player from the queue. Type "!removeall <user>" to empty the queue.');
 	}
 	
 	//Everybody, Add User to Queue
@@ -414,31 +435,31 @@ client.on('chat', (channel, user, message, self) => {
 	}
 	
 	//VIP and Jen, increment yawn counter
-	if (message.startsWith("!yawn")) {
+	if (message.startsWith("!yawn") || message.startsWith("!juan")) {
 		if(user["display-name"] === "beyondtheed" || (isRealValue(user["badges"]) && ('vip' in user["badges"]))){
 			var command = message.split(' ')[0];
 			var input = message.split(' ')[1];
-			if (command === '!yawn' && isInt(input) && input >= 0){
+			if ((command === '!yawn' || command === '!juan') && isInt(input) && input >= 0){
 				yawncounter += parseInt(input);
 				saveYawn();
-				client.say('beyondtheed', 'The yawn counter has been incremented by ' + input + '. Yawn Counter is now: ' + yawncounter + '. beyond88SmallNap');
+				client.say('beyondtheed', 'The ' + capitalizeFirstLetter(command) + ' counter has been incremented by ' + input + '. ' + capitalizeFirstLetter(command) + ' Counter is now: ' + yawncounter + '. beyond88SmallNap');
 			}
-			else if(command === '!yawn' && !input){
+			else if((command === '!yawn' || command === '!juan')&& !input){
 				yawncounter++;
 				saveYawn();
-				client.say('beyondtheed', 'The yawn counter has been incremented. Yawn Counter is now: ' + yawncounter + '. beyond88SmallNap');
+				client.say('beyondtheed', 'The ' + capitalizeFirstLetter(command) + ' counter has been incremented. ' + capitalizeFirstLetter(command) + ' Counter is now: ' + yawncounter + '. beyond88SmallNap');
 			}
 			else{
 				client.say("beyondtheed", "Error. The command you typed is invalid. beyond88SmallNap");
 			}
 		}
 		else{
-			client.say("beyondtheed", "Sorry, you do not have the permissions to use the !yawn command. beyond88SmallNap");
+			client.say("beyondtheed", "Sorry, you do not have the permissions to use the " + message.split(' ')[0] + " command. beyond88SmallNap");
 		}
 	}
 	
 	//VIP and Jen, reset yawn counter
-	if(message === '!resetyawn'){
+	if(message === '!resetyawn' || message === '!resetjuan'){
 		if(user["display-name"] === "beyondtheed" || (isRealValue(user["badges"]) && ('vip' in user["badges"]))){
 			yawncounter = 0;
 			saveYawn();
@@ -450,11 +471,11 @@ client.on('chat', (channel, user, message, self) => {
 	}
 	
 	//VIP and Jen, manually set yawn counter
-	if (message.startsWith("!setyawn")) {
+	if (message.startsWith("!setyawn") || message.startsWith("!setjuan")) {
 		if(user["display-name"] === "beyondtheed" || (isRealValue(user["badges"]) && ('vip' in user["badges"]))){
 			var command = message.split(' ')[0];
 			var input = message.split(' ')[1];
-			if (command === '!setyawn' && isInt(input) && input >= 0){
+			if ((command === '!setyawn' || command === '!setjuan') && isInt(input) && input >= 0){
 				yawncounter = parseInt(input);
 				saveYawn();
 				client.say('beyondtheed', 'The yawn counter has been set to ' + input + '. Yawn Counter is now: ' + yawncounter + '. beyond88SmallNap');
@@ -469,8 +490,75 @@ client.on('chat', (channel, user, message, self) => {
 	}
 	
 	//Everybody, get current yawn counter
-	if(message === '!curryawn'){
+	if(message === '!curryawn' || message === '!currjuan'){
 		client.say('beyondtheed', 'Currently, the Yawn Counter is at: ' + yawncounter + '. beyond88SmallNap');
+	}
+	
+	//all Special Counter commands
+	
+	//Everybody, all Special Bot Commands
+	if(message === '!help5'){
+		client.say('beyondtheed', 'Type "!special" to add the special counter by 1. Type "!special <value>" to add the special counter with a specific value. (Example: Type "!special 2" to increment the counter by 2.) Type "!resetspecial" to reset the special counter to 0. Type "!setspecial <value>" to set the special counter to a specific value. (Example: Type "!setspecial 6" to set the counter to 6.) Type "!save" to manually save the special counter. Type "!currspecial" to see the current special counter.');
+	}
+	
+	//VIP and Jen, increment special counter
+	if (message.startsWith("!special")) {
+		if(user["display-name"] === "beyondtheed" || (isRealValue(user["badges"]) && ('vip' in user["badges"]))){
+			var command = message.split(' ')[0];
+			var input = message.split(' ')[1];
+			if (command === '!special' && isInt(input) && input >= 0){
+				specialcounter += parseInt(input);
+				saveSpecial();
+				client.say('beyondtheed', 'The special counter has been incremented by ' + input + '. ' + 'Special Counter is now: ' + specialcounter + '.');
+			}
+			else if(command === '!special' && !input){
+				specialcounter++;
+				saveSpecial();
+				client.say('beyondtheed', 'The special counter has been incremented. Special Counter is now: ' + specialcounter + '.');
+			}
+			else{
+				client.say("beyondtheed", "Error. The command you typed is invalid.");
+			}
+		}
+		else{
+			client.say("beyondtheed", "Sorry, you do not have the permissions to use the !special command.");
+		}
+	}
+	
+	//VIP and Jen, reset special counter
+	if(message === '!resetspecial'){
+		if(user["display-name"] === "beyondtheed" || (isRealValue(user["badges"]) && ('vip' in user["badges"]))){
+			specialcounter = 0;
+			saveSpecial();
+			client.say('beyondtheed', 'The special counter has been reset. Special Counter is now: ' + specialcounter + '.');
+		}
+		else{
+			client.say("beyondtheed", "Sorry, you do not have the permissions to use the !resetspecial command.");
+		}
+	}
+	
+	//VIP and Jen, manually set special counter
+	if (message.startsWith("!setspecial")) {
+		if(user["display-name"] === "beyondtheed" || (isRealValue(user["badges"]) && ('vip' in user["badges"]))){
+			var command = message.split(' ')[0];
+			var input = message.split(' ')[1];
+			if (command === '!setspecial' && isInt(input) && input >= 0){
+				specialcounter = parseInt(input);
+				saveSpecial();
+				client.say('beyondtheed', 'The special counter has been set to ' + input + '. Special Counter is now: ' + specialcounter + '.');
+			}
+			else{
+				client.say("beyondtheed", "Error. The command you typed is invalid.");
+			}
+		}
+		else{
+			client.say("beyondtheed", "Sorry, you do not have the permissions to use the !setspecial command.");
+		}
+	}
+	
+	//Everybody, get current special counter
+	if(message === '!currspecial'){
+		client.say('beyondtheed', 'Currently, the Special Counter is at: ' + specialcounter + '.');
 	}
 	
 	//Easter Egg, Everybody
