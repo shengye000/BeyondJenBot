@@ -91,10 +91,8 @@ const options = {
 		reconnect: true,
 	},
 	identity: {
-		//username: 'xxxxxxxxxxxxx',
-		//password: 'oauth:xxxxxxxxxxxxxxxxxxxxxxxxxxxxx',
-		username: 'capktwitchbot',
-		password: 'oauth:finx0wpwr2u8rulrimtcrupvporog7',
+		username: 'xxxxxxxxxxxxx',
+		password: 'oauth:xxxxxxxxxxxxxxxxxxxxxxxxxxxxx',
 	},
 	channels: ['beyondtheed'],
 };
