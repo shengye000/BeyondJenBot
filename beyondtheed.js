@@ -4,7 +4,7 @@ var queueOpen = true;	//queue open/closed status
 var fs = require('fs')	//read and write required stuff
 
 //counters that can be saved
-var counters = {fun: 0, yawn: 0, special: 0, farm: 0}
+var counters = {fun: 0, yawn: 0, special: 0, farm: 0, swear: 0}
 
 //get rid of !, capitalize first letter of a string
 function capitalizeFirstLetter(string) {
@@ -53,8 +53,8 @@ const options = {
 		reconnect: true,
 	},
 	identity: {
-/* 		username: 'xxxxxxxxxxxxx',
-		password: 'oauth:xxxxxxxxxxxxxxxxxxxxxxxxxxxxx', */
+ 		username: 'xxxxxxxxxxxxx',
+		password: 'oauth:xxxxxxxxxxxxxxxxxxxxxxxxxxxxx',
 	},
 	channels: ['beyondtheed'],
 };
@@ -67,20 +67,19 @@ client.on('connected', (address, port) => {
 	//change username color
 	client.say('beyondtheed', `/color Green`);
 	
-	//client.say('beyondtheed' , counters['fun'] + " ");
 	//check previous fun and yawn counters
 	if(fs.existsSync('counters.txt')) {
 		var content = fs.readFileSync('counters.txt', 'utf-8');
 		try {
 			counters = JSON.parse(content);
-			client.say('beyondtheed', 'The BeyondJenBot is awake. The fun counter is at ' + counters.fun + '. The yawn counter is at ' + counters.yawn + '. The special counter is at ' + counters.special + '. The farm counter is at ' + counters.farm + '. The list of commands for the Fun Bot are in: "!help", the Queue Bot in: "!help2", the Game Bot in "!help3", the Yawn Bot in "!help4", the Special Bot in "!help5", and the Farm Bot in "!help6".');
+			client.say('beyondtheed', 'The BeyondJenBot is awake. The fun counter is at ' + counters.fun + '. The yawn counter is at ' + counters.yawn + '. The special counter is at ' + counters.special + '. The farm counter is at ' + counters.farm + '. The swear counter is at ' + counters.swear + '. The list of commands for the Fun Counter are in: "!help", the Queue in: "!help2", the Game Counter in "!help3", the Yawn Counter in "!help4", the Special Counter in "!help5", the Farm Counter in "!help6", and the Swear Counter in "!help7".');
 
 		} catch (e) {
-			client.say('beyondtheed' , 'The BeyondJenBot is awake. The previous load data cannot be loaded. All counters are thus set at zero. The list of commands for the Fun Bot are in: "!help", the Queue Bot in: "!help2", the Game Bot in "!help3", the Yawn Bot in "!help4", the Special Bot in "!help5", and the Farm Bot in "!help6".');
+			client.say('beyondtheed' , 'The BeyondJenBot is awake. The previous sava data cannot be loaded, so all counters are thus set at zero. The list of commands for the Fun Counter are in: "!help", the Queue in: "!help2", the Game Counter in "!help3", the Yawn Counter in "!help4", the Special Counter in "!help5", the Farm Counter in "!help6", and the Swear Counter in "!help7".');
 		}
 	}
 	else{
-		client.say('beyondtheed' , 'The BeyondJenBot is awake. The bot cannot find any previous saved data, so all counters are at zero. The list of commands for the Fun Bot are in: "!help", the Queue Bot in: "!help2", the Game Bot in "!help3", the Yawn Bot in "!help4", the Special Bot in "!help5", and the Farm Bot in "!help6".');
+		client.say('beyondtheed' , 'The BeyondJenBot is awake. There is no previous save data, so all counters are thus set at zero. The list of commands for the Fun Counter are in: "!help", the Queue in: "!help2", the Game Counter in "!help3", the Yawn Counter in "!help4", the Special Counter in "!help5", the Farm Counter in "!help6", and the Swear Counter in "!help7".');
 	}
 	
 	//remind Jen the queue is not empty every 5 minutes if the queue is not empty.
@@ -88,18 +87,18 @@ client.on('connected', (address, port) => {
 		if(queue.length !== 0){
 			client.say('beyondtheed', '@beyondtheed Just a reminder there is currently ' + queue.length + ' user(s) still waiting in the queue.');
 		}
-	}, 330000); // 330000 = 5.5 minutes
+	}, 360000); // 360000 = 6 minutes
 	
 	//every hour have the bot say the current counters and list of commands.
 	setInterval(function() {
-		client.say('beyondtheed', 'Hello chat this is the BeyondJenBot with your hourly status update. The fun counter is at ' + counters.fun + '. The yawn counter is at ' + counters.yawn + '. The special counter is at ' + counters.special + '. The farm counter is at ' + counters.farm + '. Also, as a reminder, you can find a list of commands by typing !help, !help2, !help3, !help4, !help5, and !help6.');
+		client.say('beyondtheed', 'Hello chat this is the BeyondJenBot with your hourly status update. The fun counter is at ' + counters.fun + '. The yawn counter is at ' + counters.yawn + '. The special counter is at ' + counters.special + '. The farm counter is at ' + counters.farm + '. The swear counter is at ' + counters.swear + '. Also, as a reminder, you can find a list of commands by typing !help, !help2, !help3, !help4, !help5, !help6, and !help7.');
 	}, 3600000); //3600000 = 1 hour
 });
 
 client.on('chat', (channel, user, message, self) => {
 	
 	//everybody, Fun Bot Commands
-	if(message === '!help'){
+	if(message === '!help' || message === '!help fun'){
 		client.say('beyondtheed', 'Type "!fun" to add the fun counter by 1. Type "!fun <value>" to add the fun counter with a specific value. (Example: Type "!fun 2" to increment the counter by 2.) Type "!resetfun" to reset the fun counter to 0. Type "!setfun <value>" to set the fun counter to a specific value. (Example: Type "!setfun 6" to set the counter to 6.) Type "!currfun" to see the current fun counter.');
 	}
 	
@@ -168,7 +167,7 @@ client.on('chat', (channel, user, message, self) => {
 	//All Queue Bot Commands
 	
 	//Everybody, Queue Bot Commands
-	if(message === '!help2'){
+	if(message === '!help2' || message === '!help queue'){
 		client.say('beyondtheed', 'Type "!add" to add yourself to the queue. Type "!remove" to remove yourself from the queue. Type "!queue" to see the current queue. Type "!next" to get the next player on the queue. Type "!close" to close the queue. Type "!open" to open the queue. Type "!addplayer <user>" to manually add a player to the queue. Type "!removeplayer <user>" to manually remove a player from the queue. Type "!removeall <user>" to empty the queue.');
 	}
 	
@@ -327,7 +326,7 @@ client.on('chat', (channel, user, message, self) => {
 	//All Game Bot Commands
 	
 	//Everybody, Game Bot Commands
-	if(message === '!help3'){
+	if(message === '!help3' || message === '!help game'){
 		client.say('beyondtheed', 'Type "!addgame" to add one to the game number. Type "!setgame <value>" to set the game number in the rotation. Type "!currgame" to see the current game set in the rotation. Type "!resetgame" to reset the game counter to 1.');
 	}
 	
@@ -379,7 +378,7 @@ client.on('chat', (channel, user, message, self) => {
 	//all Yawn Bot commands
 	
 	//Everybody, all Yawn Bot Commands
-	if(message === '!help4'){
+	if(message === '!help4' || message === '!help yawn'){
 		client.say('beyondtheed', 'Type "!yawn" to add the yawn counter by 1. Type "!yawn <value>" to add the yawn counter with a specific value. (Example: Type "!yawn 2" to increment the counter by 2.) Type "!resetyawn" to reset the yawn counter to 0. Type "!setyawn <value>" to set the yawn counter to a specific value. (Example: Type "!setyawn 6" to set the counter to 6.) Type "!curryawn" to see the current yawn counter.');
 	}
 	
@@ -446,7 +445,7 @@ client.on('chat', (channel, user, message, self) => {
 	//all Special Counter commands
 	
 	//Everybody, all Special Bot Commands
-	if(message === '!help5'){
+	if(message === '!help5' || message === '!help special'){
 		client.say('beyondtheed', 'Type "!special" to add the special counter by 1. Type "!special <value>" to add the special counter with a specific value. (Example: Type "!special 2" to increment the counter by 2.) Type "!resetspecial" to reset the special counter to 0. Type "!setspecial <value>" to set the special counter to a specific value. (Example: Type "!setspecial 6" to set the counter to 6.) Type "!currspecial" to see the current special counter.');
 	}
 	
@@ -513,7 +512,7 @@ client.on('chat', (channel, user, message, self) => {
 	//All Farm Counter Commands
 	
 	//Everybody, all Farm Bot Commands
-	if(message === '!help6'){
+	if(message === '!help6' || message === '!help farm'){
 		client.say('beyondtheed', 'Type "!farm" to add the farm counter by 1. Type "!farm <value>" to add the farm counter with a specific value. (Example: Type "!farm 3" to increment the counter by 3.) Type "!resetfarm" to reset the farm counter to 0. Type "!setfarm <value>" to set the farm counter to a specific value. (Example: Type "!setfarm 6" to set the counter to 6.) Type "!currfarm" to see the current farm counter.');
 	}
 	
@@ -577,6 +576,72 @@ client.on('chat', (channel, user, message, self) => {
 		client.say('beyondtheed', 'Currently, the Farm Counter is at: ' + counters.farm + '.');
 	}
 	
+	//Swear Counter
+	
+	//Everybody, all Swear Bot Commands
+	if(message === '!help7' || message === '!help swear'){
+		client.say('beyondtheed', 'Type "!swear" to add the Swear Counter by 1. Type "!swear <value>" to add the Swear Counter with a specific value. (Example: Type "!swear 3" to increment the counter by 3.) Type "!resetswear" to reset the Swear Counter to 0. Type "!setswear <value>" to set the Swear Counter to a specific value. (Example: Type "!setswear 6" to set the counter to 6.) Type "!currswear" to see the current Swear Counter.');
+	}
+	
+	//VIP and Jen, increment Swear Counter
+	if (message.startsWith("!swear")) {
+		if(user["display-name"] === "beyondtheed" || (isRealValue(user["badges"]) && ('vip' in user["badges"]))){
+			var command = message.split(' ')[0];
+			var input = message.split(' ')[1];
+			if (command === '!swear' && isInt(input) && input >= 0){
+				counters.swear += parseInt(input);
+				saveCounters('swear');
+				client.say('beyondtheed', 'The Swear Counter has been incremented by ' + input + '. ' + 'Swear Counter is now: ' + counters.swear + '.');
+			}
+			else if(command === '!swear' && !input){
+				counters.swear++;
+				saveCounters('swear');
+				client.say('beyondtheed', 'The Swear Counter has been incremented. Swear Counter is now: ' + counters.swear + '.');
+			}
+			else{
+				client.say("beyondtheed", "Error. The command you typed is invalid.");
+			}
+		}
+		else{
+			client.say("beyondtheed", "Sorry, you do not have the permissions to use the !swear command.");
+		}
+	}
+	
+	//VIP and Jen, reset Swear Counter
+	if(message === '!resetswear'){
+		if(user["display-name"] === "beyondtheed" || (isRealValue(user["badges"]) && ('vip' in user["badges"]))){
+			counters.swear = 0;
+			saveCounters('swear');
+			client.say('beyondtheed', 'The Swear Counter has been reset. Swear Counter is now: ' + counters.swear + '.');
+		}
+		else{
+			client.say("beyondtheed", "Sorry, you do not have the permissions to use the !resetswear command.");
+		}
+	}
+	
+	//VIP and Jen, manually set Swear Counter
+	if (message.startsWith("!setswear")) {
+		if(user["display-name"] === "beyondtheed" || (isRealValue(user["badges"]) && ('vip' in user["badges"]))){
+			var command = message.split(' ')[0];
+			var input = message.split(' ')[1];
+			if (command === '!setswear' && isInt(input) && input >= 0){
+				counters.swear = parseInt(input);
+				saveCounters('swear');
+				client.say('beyondtheed', 'The Swear Counter has been set to ' + input + '. Swear Counter is now: ' + counters.swear + '.');
+			}
+			else{
+				client.say("beyondtheed", "Error. The command you typed is invalid.");
+			}
+		}
+		else{
+			client.say("beyondtheed", "Sorry, you do not have the permissions to use the !setswear command.");
+		}
+	}
+	
+	//Everybody, get current Swear Counter
+	if(message === '!currswear'){
+		client.say('beyondtheed', 'Currently, the Swear Counter is at: ' + counters.swear + '.');
+	}
 	
 	//Hidden commands not shown in the !help. 
 	if(message === '!hi'){
@@ -603,6 +668,10 @@ client.on('chat', (channel, user, message, self) => {
 		client.say('beyondtheed', "~USE YOUR SPECIALS JEN~");
 	}
 	
+	if(message === '!break'){
+		client.say('beyondtheed', '~TAKE A BREAK JEN~');
+	}
+	
 	if(message === '!save'){
 		if(user["display-name"] === "beyondtheed"){
 			//save to history
@@ -610,6 +679,7 @@ client.on('chat', (channel, user, message, self) => {
 			saveCounters('yawn');
 			saveCounters('special');
 			saveCounters('farm');
+			saveCounters('swear');
 			client.say("beyondtheed", "Saved.");
 		}
 		else{
