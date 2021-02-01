@@ -20,8 +20,17 @@ likely will be of little use to you. If you still want to use it though, here ar
 
 ## Updates
 
-January 16, 2021 Update
-1.) All yawn commands can be substititued with 'juan'.
-2.) Special commands added. 
+### January 16, 2021 Update  
+
+1. All yawn commands can be substititued with 'juan'.
+2. Special commands added.  
+
+### February 1, 2021 Update  
+
+1. Added a farm and swear counter.
+2. Added a reminder for when there are user(s) in the queue and an hourly status update.
+3. All emotes are callable by commands, like !hi, !claus, !nap.
+4. Added many hidden commands.
+5. Several optimzation code in the back for a more pleasant experience.
 
 
