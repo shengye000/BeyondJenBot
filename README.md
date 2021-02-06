@@ -5,8 +5,8 @@
 This is a Twitch Bot I made for [beyondtheed](https://www.twitch.tv/beyondtheed). She is a Splatoon 2
 Salmon Run streamer, and we needed a bot mostly to keep track of viewers who want to play games with
 her and the number of games remaining before we rotate out new viewers. I will update the bot as the
-need for more commands show up, but currently, we have 5 main functions for the bot: Fun Counter,
-Yawn Counter, Queue, Game Counter, and Special Counter.  
+need for more commands show up, but currently, we have 8 main functions for the bot: Fun Counter,
+Yawn Counter, Queue, Game Counter, Special Counter, Farm Counter, Swear Counter, and Miscellaneous.  
 
 ## Installation
 
@@ -31,6 +31,12 @@ likely will be of little use to you. If you still want to use it though, here ar
 2. Added a reminder for when there are user(s) in the queue and an hourly status update.
 3. All emotes are callable by commands, like !hi, !claus, !nap.
 4. Added many hidden commands.
-5. Several optimzation code in the back for a more pleasant experience.
+5. Several optimzation code in the back for a more pleasant experience.  
+
+### February 6, 2021 Update  
+
+1. Added an !on and !off for notifications.
+2. Hopefully fixed timer desync bug from last update.
+3. Added a misc help.
 
 

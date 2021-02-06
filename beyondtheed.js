@@ -1,7 +1,25 @@
-var queue = [];			//current queue
-var game = 1;			//current game
-var queueOpen = true;	//queue open/closed status
-var fs = require('fs')	//read and write required stuff
+//TODO: Maybe reset timer for queue reminder?
+
+var queue = [];						//current queue
+var game = 1;						//current game
+var queueOpen = true;				//queue open/closed status
+var fs = require('fs')				//read and write required stuff
+var forestFirstTime = true; 		//if Forest has not talked yet
+var queueTime = 360000;				//360000 = 6 minutes
+var hourlyTime = 3600000; 			//3600000 = 1 hour
+var varQueueInterval = setInterval(queueInterval, queueTime); 
+var varHourlyInterval = setInterval(hourlyInterval, hourlyTime); 
+var notification = true;
+
+function queueInterval() {
+	if(queue.length !== 0){
+		client.say('beyondtheed', '@beyondtheed Just a friendly reminder there is currently ' + queue.length + ' user(s) still waiting in the queue.');
+	}
+}
+
+function hourlyInterval() {
+	client.say('beyondtheed', 'Hello chat this is the BeyondJenBot with your hourly status update. The fun counter is at ' + counters.fun + '. The yawn counter is at ' + counters.yawn + '. The special counter is at ' + counters.special + '. The farm counter is at ' + counters.farm + '. The swear counter is at ' + counters.swear + '. Also, as a reminder, you can find a list of commands by typing "!help <type>", where <type> can be "fun", "queue", "game", "yawn", "special", "farm", "swear", or "misc". (Example: "!help yawn").');
+}
 
 //counters that can be saved
 var counters = {fun: 0, yawn: 0, special: 0, farm: 0, swear: 0}
@@ -53,7 +71,7 @@ const options = {
 		reconnect: true,
 	},
 	identity: {
- 		username: 'xxxxxxxxxxxxx',
+		username: 'xxxxxxxxxxxxx',
 		password: 'oauth:xxxxxxxxxxxxxxxxxxxxxxxxxxxxx',
 	},
 	channels: ['beyondtheed'],
@@ -72,27 +90,27 @@ client.on('connected', (address, port) => {
 		var content = fs.readFileSync('counters.txt', 'utf-8');
 		try {
 			counters = JSON.parse(content);
-			client.say('beyondtheed', 'The BeyondJenBot is awake. The fun counter is at ' + counters.fun + '. The yawn counter is at ' + counters.yawn + '. The special counter is at ' + counters.special + '. The farm counter is at ' + counters.farm + '. The swear counter is at ' + counters.swear + '. The list of commands for the Fun Counter are in: "!help", the Queue in: "!help2", the Game Counter in "!help3", the Yawn Counter in "!help4", the Special Counter in "!help5", the Farm Counter in "!help6", and the Swear Counter in "!help7".');
+			client.say('beyondtheed', 'The BeyondJenBot is awake. The fun counter is at ' + counters.fun + '. The yawn counter is at ' + counters.yawn + '. The special counter is at ' + counters.special + '. The farm counter is at ' + counters.farm + '. The swear counter is at ' + counters.swear + '. The list of commands for the Fun Counter are in: "!help", the Queue in: "!help2", the Game Counter in "!help3", the Yawn Counter in "!help4", the Special Counter in "!help5", the Farm Counter in "!help6", the Swear Counter in "!help7", and miscellaneous commands in "!help8".');
 
 		} catch (e) {
-			client.say('beyondtheed' , 'The BeyondJenBot is awake. The previous sava data cannot be loaded, so all counters are thus set at zero. The list of commands for the Fun Counter are in: "!help", the Queue in: "!help2", the Game Counter in "!help3", the Yawn Counter in "!help4", the Special Counter in "!help5", the Farm Counter in "!help6", and the Swear Counter in "!help7".');
+			client.say('beyondtheed' , 'The BeyondJenBot is awake. The previous sava data cannot be loaded, so all counters are thus set at zero. The list of commands for the Fun Counter are in: "!help", the Queue in: "!help2", the Game Counter in "!help3", the Yawn Counter in "!help4", the Special Counter in "!help5", the Farm Counter in "!help6", the Swear Counter in "!help7", and miscellaneous commands in "!help8".');
 		}
 	}
 	else{
-		client.say('beyondtheed' , 'The BeyondJenBot is awake. There is no previous save data, so all counters are thus set at zero. The list of commands for the Fun Counter are in: "!help", the Queue in: "!help2", the Game Counter in "!help3", the Yawn Counter in "!help4", the Special Counter in "!help5", the Farm Counter in "!help6", and the Swear Counter in "!help7".');
+		client.say('beyondtheed' , 'The BeyondJenBot is awake. There is no previous save data, so all counters are thus set at zero. The list of commands for the Fun Counter are in: "!help", the Queue in: "!help2", the Game Counter in "!help3", the Yawn Counter in "!help4", the Special Counter in "!help5", the Farm Counter in "!help6", the Swear Counter in "!help7", and miscellaneous commands in "!help8".');
 	}
 	
-	//remind Jen the queue is not empty every 5 minutes if the queue is not empty.
+/* 	//remind Jen the queue is not empty every 5 minutes if the queue is not empty.
 	setInterval(function() {
 		if(queue.length !== 0){
-			client.say('beyondtheed', '@beyondtheed Just a reminder there is currently ' + queue.length + ' user(s) still waiting in the queue.');
+			client.say('beyondtheed', '@beyondtheed Just a friendly reminder there is currently ' + queue.length + ' user(s) still waiting in the queue.');
 		}
 	}, 360000); // 360000 = 6 minutes
 	
 	//every hour have the bot say the current counters and list of commands.
 	setInterval(function() {
-		client.say('beyondtheed', 'Hello chat this is the BeyondJenBot with your hourly status update. The fun counter is at ' + counters.fun + '. The yawn counter is at ' + counters.yawn + '. The special counter is at ' + counters.special + '. The farm counter is at ' + counters.farm + '. The swear counter is at ' + counters.swear + '. Also, as a reminder, you can find a list of commands by typing !help, !help2, !help3, !help4, !help5, !help6, and !help7.');
-	}, 3600000); //3600000 = 1 hour
+		client.say('beyondtheed', 'Hello chat this is the BeyondJenBot with your hourly status update. The fun counter is at ' + counters.fun + '. The yawn counter is at ' + counters.yawn + '. The special counter is at ' + counters.special + '. The farm counter is at ' + counters.farm + '. The swear counter is at ' + counters.swear + '. Also, as a reminder, you can find a list of commands by typing "!help <type>", where <type> can be "fun", "queue", "game", "yawn", "special", "farm", or "swear".');
+	}, 3600000); //3600000 = 1 hour */
 });
 
 client.on('chat', (channel, user, message, self) => {
@@ -643,19 +661,64 @@ client.on('chat', (channel, user, message, self) => {
 		client.say('beyondtheed', 'Currently, the Swear Counter is at: ' + counters.swear + '.');
 	}
 	
-	//Hidden commands not shown in the !help. 
+	//Miscellaneous commands
+	//Everybody, all miscellaneous commands
+	if(message === '!help8' || message === '!help misc'){
+		client.say('beyondtheed', 'Type "!hi" to use beyond88SmallHi. Type "!nap" to use beyond88SmallNap. Type "!claus" to use beyond88SmallClaus. Type "!off" to turn off notifications. Type "!on" to turn on notifications. ');
+	}
+	
+	//Emote of hi
 	if(message === '!hi'){
 		client.say('beyondtheed', 'beyond88SmallHi');
 	}
 	
+	//Emote of nap
 	if(message === '!nap'){
 		client.say('beyondtheed', 'beyond88SmallNap');
 	}
 	
+	//Emote of claus
 	if(message === '!claus'){
 		client.say('beyondtheed', 'beyond88SmallClaus');
 	}
 	
+	//turn off notifications
+	if(message === '!off'){
+		if(user["display-name"] === "beyondtheed"){
+			if(notification === false){
+				client.say('beyondtheed', 'Notifications are already turned off.');
+			}
+			else{
+				clearInterval(varQueueInterval);
+				clearInterval(varHourlyInterval);
+				notification = false;
+				client.say('beyondtheed', 'Notifications are now off.');
+			}
+		}
+		else{
+			client.say('beyondtheed', 'Sorry, the !off command is only available to the broadcaster.');
+		}
+	}
+	
+	//turn on notifications
+	if(message === '!on'){
+		if(user["display-name"] === "beyondtheed"){
+			if(notification === true){
+				client.say('beyondtheed', 'Notifications are already turned on.');
+			}
+			else{
+				varQueueInterval = setInterval(queueInterval, queueTime); //360000 = 6 minutes
+				varHourlyInterval = setInterval(hourlyInterval, hourlyTime); //3600000 = 1 hour
+				notification = true;
+				client.say('beyondtheed', 'Notifications are now on.');
+			}
+		}
+		else{
+			client.say('beyondtheed', 'Sorry, the !on command is only available to the broadcaster.');
+		}
+	}
+		
+	//Hidden commands not shown in the !help. 
 	if(message === '!egg'){
 		client.say('beyondtheed', 'Egg.');
 	}
@@ -685,5 +748,10 @@ client.on('chat', (channel, user, message, self) => {
 		else{
 			client.say("beyondtheed", "Sorry, you do not have the permissions to use the !save command.");
 		}
+	}
+	
+	if(user["display-name"] === "ForestGrump8" && forestFirstTime){
+		forestFirstTime = false;
+		client.say('beyondtheed', '@ForestGrump8 beyond88SmallHi How was your day today Forest?');
 	}
 });
