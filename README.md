@@ -39,4 +39,12 @@ likely will be of little use to you. If you still want to use it though, here ar
 2. Hopefully fixed timer desync bug from last update.
 3. Added a misc help.
 
+### February 20, 2021 Update  
+
+1. Added 2 more greetings for certain user's first time on stream.
+2. Shortened some text on waking and hourly update statement, and added the hour for hourly updates.
+3. Added a !counter command to see all counters at a time.
+4. Added a !random command to randomly selected a player from the queue.
+5. Expanded !next to include number and have manually have person skip the queue. 
+6. Added a universal !help. 
 
