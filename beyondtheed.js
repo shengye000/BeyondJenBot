@@ -1,7 +1,10 @@
 // TODO LIST: 
 // Maybe reset timer for queue reminder?
 // Music for infofarm? 
+// !w3 counter?
 
+const Audic = require("audic")
+var farmCooldown = false;
 var hour = 0;						//hour of playing the game
 var queue = [];						//current queue
 var game = 1;						//current game
@@ -78,8 +81,8 @@ const options = {
 		reconnect: true,
 	},
 	identity: {
-		username: 'xxxxxxxxxxxxx',
-		password: 'oauth:xxxxxxxxxxxxxxxxxxxxxxxxxxxxx', 
+ 		username: 'xxxxxxxxxxxxx',
+		password: 'oauth:xxxxxxxxxxxxxxxxxxxxxxxxxxxxx',
 	},
 	channels: ['beyondtheed'],
 };
@@ -801,6 +804,15 @@ client.on('chat', (channel, user, message, self) => {
 		else{
 			client.say("beyondtheed", "Sorry, you do not have the permissions to use the !save command.");
 		}
+	}
+	
+	if(message === '!infofarm' && !farmCooldown){
+			farmCooldown = true;
+			setTimeout(() => {
+			  // Removes farmCooldown after a minute
+			  farmCooldown = false;
+			}, 60000);
+			new Audic("Shroder.mp3").play();
 	}
 	
 	//bot commands for people talking in chat first time. 
