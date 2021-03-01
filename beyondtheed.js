@@ -1,7 +1,7 @@
 // TODO LIST: 
 // Maybe reset timer for queue reminder?
 // Music for infofarm? 
-// !w3 counter?
+// !w3 counter leaderboards?
 
 const Audic = require("audic")
 var farmCooldown = false;
@@ -28,11 +28,11 @@ function queueInterval() {
 
 function hourlyInterval() {
 	hour++;
-	client.action('beyondtheed', 'is here with the hour ' + hour + ' update. Fun Counter: ' + counters.fun + ', Yawn Counter: ' + counters.yawn + ', Special Counter: ' + counters.special + ', Farm Counter: ' + counters.farm + ', Swear Counter: ' + counters.swear + '.');
+	client.action('beyondtheed', 'is here with the update number ' + hour + '. Fun Counter: ' + counters.fun + ', Yawn Counter: ' + counters.yawn + ', Special Counter: ' + counters.special + ', Farm Counter: ' + counters.farm + ', Swear Counter: ' + counters.swear + ', Wave 3 Counter: ' + counters.w3 + '.');
 }
 
 //counters that can be saved
-var counters = {fun: 0, yawn: 0, special: 0, farm: 0, swear: 0}
+var counters = {fun: 0, yawn: 0, special: 0, farm: 0, swear: 0, w3: 0, w3users: {}}
 
 //get rid of !, capitalize first letter of a string
 function capitalizeFirstLetter(string) {
@@ -81,7 +81,7 @@ const options = {
 		reconnect: true,
 	},
 	identity: {
- 		username: 'xxxxxxxxxxxxx',
+		username: 'xxxxxxxxxxxxx',
 		password: 'oauth:xxxxxxxxxxxxxxxxxxxxxxxxxxxxx',
 	},
 	channels: ['beyondtheed'],
@@ -94,13 +94,13 @@ client.connect();
 client.on('connected', (address, port) => {
 	//change username color
 	client.say('beyondtheed', `/color Green`);
-	
+
 	//check previous fun and yawn counters
 	if(fs.existsSync('counters.txt')) {
 		var content = fs.readFileSync('counters.txt', 'utf-8');
 		try {
 			counters = JSON.parse(content);
-			client.action('beyondtheed', 'is now awake. Fun Counter: ' + counters.fun + ', Yawn Counter: ' + counters.yawn + ', Special Counter: ' + counters.special + ', Farm Counter: ' + counters.farm + ', Swear Counter: ' + counters.swear + '. You can find a list of commands by typing "!help <type>", where <type> can be "fun", "queue", "game", "yawn", "special", "farm", "swear", or "misc". (Example: "!help yawn").');
+			client.action('beyondtheed', 'is now awake. Fun Counter: ' + counters.fun + ', Yawn Counter: ' + counters.yawn + ', Special Counter: ' + counters.special + ', Farm Counter: ' + counters.farm + ', Swear Counter: ' + counters.swear + ', Wave 3 Counter: ' + counters.w3 + '. You can find a list of commands by typing "!help <type>", where <type> can be "fun", "queue", "game", "yawn", "special", "farm", "swear", or "misc". (Example: "!help yawn").');
 
 		} catch (e) {
 			client.action('beyondtheed' , 'is now awake. The previous sava data cannot be loaded, so all counters are thus set at zero. You can find a list of commands by typing "!help <type>", where <type> can be "fun", "queue", "game", "yawn", "special", "farm", "swear", or "misc". (Example: "!help yawn").');
@@ -711,7 +711,7 @@ client.on('chat', (channel, user, message, self) => {
 	//Miscellaneous commands
 	//Everybody, all miscellaneous commands
 	if(message === '!help8' || message === '!help misc'){
-		client.say('beyondtheed', 'Type "!hi" to use beyond88SmallHi. Type "!nap" to use beyond88SmallNap. Type "!claus" to use beyond88SmallClaus. Type "!off" to turn off notifications. Type "!on" to turn on notifications. Type "!counter" to see all the current counters.');
+		client.say('beyondtheed', 'Type "!hi" to use beyond88SmallHi. Type "!nap" to use beyond88SmallNap. Type "!claus" to use beyond88SmallClaus. Type "!off" to turn off notifications. Type "!on" to turn on notifications. Type "!counter" to see all the current counters. Type "!w3" to remind Jen it is wave 3, and "!w3stats" or "!w3stats <username> to see stats about the !w3 command.');
 	}
 	
 	//Emote of hi
@@ -765,9 +765,44 @@ client.on('chat', (channel, user, message, self) => {
 		}
 	}
 	
+	//reminds Jen it is wave 3
+	if(message === '!w3'){
+		if("display-name" in user){
+			var username = user["display-name"];
+			counters.w3users[username] = (counters.w3users[username]+1) || 1 ;
+		}
+		counters.w3++;
+		saveCounters('w3');
+		client.say('beyondtheed', "@beyondtheed IT'S WAVE 3. USE YOUR SPECIALS!");
+	}
+	
+	//see how many times !w3 has been called totally and by somebody
+	if(message.startsWith("!w3stats")){
+		var command = message.split(' ')[0];
+		var input = message.split(' ')[1];
+		
+		if (command === '!w3stats' && !input){
+			var val = 0;
+			if(user["display-name"] in counters.w3users){
+				val = counters.w3users[user["display-name"]];
+			}
+			client.say('beyondtheed', '!w3 has been called a total of ' + counters.w3 + ' times, with @' + user["display-name"] + ' using the !w3 command ' + val + ' times.');
+		}
+		else if(command === '!w3stats' && (typeof input === 'string' || input instanceof String)){
+			var val = 0;
+			if(input in counters.w3users){
+				val = counters.w3users[input];
+			}
+			client.say('beyondtheed', '!w3 has been called a total of ' + counters.w3 + ' times, with @' + input + ' using the !w3 command ' + val + ' times.');
+		}
+		else{
+			client.say("beyondtheed", "Error. The command you typed is invalid.");
+		}
+	}
+	
 	//show a list of all the counters
 	if(message === '!counter' || message === '!counters'){
-		client.say('beyondtheed', 'Fun Counter: ' + counters.fun + ', Yawn Counter: ' + counters.yawn + ', Special Counter: ' + counters.special + ', Farm Counter: ' + counters.farm + ', Swear Counter: ' + counters.swear + '.');
+		client.say('beyondtheed', 'Fun Counter: ' + counters.fun + ', Yawn Counter: ' + counters.yawn + ', Special Counter: ' + counters.special + ', Farm Counter: ' + counters.farm + ', Swear Counter: ' + counters.swear + ', Wave 3 Counter: '+ counters.w3 + '.');
 	}
 		
 	//Hidden commands not shown in the !help. 
@@ -777,10 +812,6 @@ client.on('chat', (channel, user, message, self) => {
 	
 	if(message === '!egg'){
 		client.say('beyondtheed', 'Egg.');
-	}
-	
-	if(message === '!w3'){
-		client.say('beyondtheed', "@beyondtheed IT'S WAVE 3. USE YOUR SPECIALS!");
 	}
 	
 	if(message === '!remind'){
@@ -799,6 +830,7 @@ client.on('chat', (channel, user, message, self) => {
 			saveCounters('special');
 			saveCounters('farm');
 			saveCounters('swear');
+			saveCounters('w3');
 			client.say("beyondtheed", "Saved.");
 		}
 		else{
@@ -806,13 +838,14 @@ client.on('chat', (channel, user, message, self) => {
 		}
 	}
 	
+	//Makes infofarm command play Shroder's voice
 	if(message === '!infofarm' && !farmCooldown){
-			farmCooldown = true;
-			setTimeout(() => {
-			  // Removes farmCooldown after a minute
-			  farmCooldown = false;
-			}, 60000);
-			new Audic("Shroder.mp3").play();
+		farmCooldown = true;
+		setTimeout(() => {
+		  // Removes farmCooldown after 5 minutes 
+		  farmCooldown = false;
+		}, 60000);
+		new Audic("Shroder.mp3").play();
 	}
 	
 	//bot commands for people talking in chat first time. 
