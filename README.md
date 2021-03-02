@@ -46,5 +46,12 @@ likely will be of little use to you. If you still want to use it though, here ar
 3. Added a !counter command to see all counters at a time.
 4. Added a !random command to randomly selected a player from the queue.
 5. Expanded !next to include number and have manually have person skip the queue. 
-6. Added a universal !help. 
+6. Added a universal !help.  
+
+### March 1, 2021 Update
+
+1. Added !infofarm sound w/ a 5 minute cooldown.
+2. Added !w3stats and a counter for times !w3 has been used.
+3. Added new !trolldie emote command. 
+
 
