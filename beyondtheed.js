@@ -733,7 +733,7 @@ client.on('chat', (channel, user, message, self) => {
 	}
 	
 	if(message === '!trolldie'){
-		cliend.say('beyondtheed', 'beyond88TrolldieHype');
+		client.say('beyondtheed', 'beyond88TrolldieHype');
 	}
 	
 	//turn off notifications
