@@ -1,7 +1,5 @@
 // TODO LIST: 
 // Maybe reset timer for queue reminder?
-// Music for infofarm? 
-// !w3 counter leaderboards?
 
 const Audic = require("audic")
 const recording = new Audic("Shroder.mp3");
@@ -83,7 +81,7 @@ const options = {
 		reconnect: true,
 	},
 	identity: {
- 		username: 'xxxxxxxxxxxxx',
+		username: 'xxxxxxxxxxxxx',
 		password: 'oauth:xxxxxxxxxxxxxxxxxxxxxxxxxxxxx',
 	},
 	channels: ['beyondtheed'],
@@ -187,7 +185,7 @@ client.on('chat', (channel, user, message, self) => {
 	
 	//Everybody, Queue Bot Commands
 	if(message === '!help2' || message === '!help queue'){
-		client.say('beyondtheed', 'Type "!add" to add yourself to the queue. Type "!remove" to remove yourself from the queue. Type "!queue" to see the queue. Type "!next" for the next player, "!next <number>" for the next <number> players, or "!next <user>" to have a user skip the queue. Type "!random" for a random player. Type "!close" to close and "!open" to open the queue. Type "!addplayer <user>" to add user to the queue. Type "!removeplayer <user>" to remove user from the queue. Type "!removeall <user>" to empty the queue.');
+		client.say('beyondtheed', 'Type "!add" to add yourself to the queue. Type "!remove" to remove yourself from the queue. Type "!queue" to see the queue. Type "!next" for the next player, "!next <number>" for the next <number> players, or "!next <user>" to have a user skip the queue. Type "!random" for a random player. Type "!close" to close and "!open" to open the queue. Type "!addplayer <user>" to add user to the queue. Type "!removeplayer <user>" to remove user from the queue. Type "!removeall" to empty the queue.');
 	}
 	
 	//Everybody, Add User to Queue
@@ -262,8 +260,11 @@ client.on('chat', (channel, user, message, self) => {
 					client.say('beyondtheed', '@' + newUser + ' is up next on the queue.');
 				}
 			}
-			else if(command === '!next' && queue.includes(input)){
+			else if(command === '!next' && (queue.includes(input) || queue.includes(input.substring(1)))){
 				//!next <username>
+				if(input.charAt(0) == '@'){
+					input = input.substring(1);
+				}
 				queue = queue.filter(e => e !== input); 
 				client.say('beyondtheed', '@' + input + ' is up next on the queue.');
 			}
@@ -349,6 +350,9 @@ client.on('chat', (channel, user, message, self) => {
 		if(user["display-name"] === "beyondtheed"){
 			var command = message.split(' ')[0];
 			var input = message.split(' ')[1];
+			if(input.charAt(0) == '@'){
+				input = input.substring(1);
+			}
 			if (command === '!addplayer' && isRealValue(input) && message.split(' ').length == 2){
 				if(!queue.includes(input)){
 					queue.push(input);
@@ -372,6 +376,9 @@ client.on('chat', (channel, user, message, self) => {
 		if(user["display-name"] === "beyondtheed"){
 			var command = message.split(' ')[0];
 			var input = message.split(' ')[1];
+			if(input.charAt(0) == '@'){
+				input = input.substring(1);
+			}
 			if (command === '!removeplayer' && isRealValue(input) && message.split(' ').length == 2){
 				if(queue.includes(input)){
 					queue = queue.filter(e => e !== input); 
@@ -714,7 +721,7 @@ client.on('chat', (channel, user, message, self) => {
 	
 	//Everybody, all miscellaneous commands
 	if(message === '!help8' || message === '!help misc'){
-		client.say('beyondtheed', 'Type "!hi" to use beyond88SmallHi. Type "!nap" to use beyond88SmallNap. Type "!claus" to use beyond88SmallClaus. Type "!trolldie" to use beyond88TrolldieHype. Type "!off" to turn off notifications. Type "!on" to turn on notifications. Type "!counter" to see all the current counters. Type "!w3" to remind Jen it is wave 3, and "!w3stats" or "!w3stats <username> to see stats about the !w3 command.');
+		client.say('beyondtheed', 'Type "!hi" to use beyond88SmallHi. Type "!nap" to use beyond88SmallNap. Type "!claus" to use beyond88SmallClaus. Type "!trolldie" to use beyond88TrolldieHype. Type "!off" to turn off notifications. Type "!on" to turn on notifications. Type "!counter" to see all the current counters. Type "!w3" to remind Jen it is wave 3. Type "!w3stats" or "!w3stats <username> to see stats about the !w3 command. Type "!w3top10" to see the top 10 (or less) callers of !w3.');
 	}
 	
 	//Emote of hi
@@ -797,6 +804,9 @@ client.on('chat', (channel, user, message, self) => {
 		}
 		else if(command === '!w3stats' && (typeof input === 'string' || input instanceof String)){
 			var val = 0;
+			if(input.charAt(0) == '@'){
+				input = input.substring(1);
+			}
 			if(input in counters.w3users){
 				val = counters.w3users[input];
 			}
@@ -807,6 +817,19 @@ client.on('chat', (channel, user, message, self) => {
 		}
 	}
 	
+	//see who the top 10 users of !w3 command are
+	if(message === '!w3top10'){
+		let result = Object.keys(counters.w3users).map(key => ({id: String(key), val: counters.w3users[key]}));
+		var masterList = result.sort(function (a, b) {
+			return b.val - a.val;
+		});
+		masterList = masterList.splice(0, 10);
+		var texts = masterList.map(function(el) {
+			return el.id + ": " + el.val;
+		});
+		texts = texts.toString().replace(/,/g, ', ');
+		client.say('beyondtheed', "The top 10 (or less) users of !w3 are: " + texts + ".");
+	}
 	//show a list of all the counters
 	if(message === '!counter' || message === '!counters'){
 		client.say('beyondtheed', 'Fun Counter: ' + counters.fun + ', Yawn Counter: ' + counters.yawn + ', Special Counter: ' + counters.special + ', Farm Counter: ' + counters.farm + ', Swear Counter: ' + counters.swear + ', Wave 3 Counter: '+ counters.w3 + '.');

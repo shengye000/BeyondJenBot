@@ -52,6 +52,13 @@ likely will be of little use to you. If you still want to use it though, here ar
 
 1. Added !infofarm sound w/ a 5 minute cooldown.
 2. Added !w3stats and a counter for times !w3 has been used.
-3. Added new !trolldie emote command. 
+3. Added new !trolldie emote command.  
+
+### March 4, 2021 Update
+
+1. Added support for "@" in front of <user> in !next, !addplayer, !removeplayer, and !w3stats.
+2. Added new command !w3top10.
+
+
 
 
