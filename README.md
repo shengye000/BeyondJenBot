@@ -59,6 +59,10 @@ likely will be of little use to you. If you still want to use it though, here ar
 1. Added support for "@" in front of <user> in !next, !addplayer, !removeplayer, and !w3stats.
 2. Added new command !w3top10.
 
+### March 7, 2021 Update  
+
+1. Added !shoot sound command. 
+
 
 
 

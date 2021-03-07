@@ -1,10 +1,12 @@
 // TODO LIST: 
 // Maybe reset timer for queue reminder?
+// !shoot with 1 minute cooldown
 
 const Audic = require("audic")
 const recording = new Audic("Shroder.mp3");
+const recording2 = new Audic("Shoooo.mp3");
 var farmCooldown = false;			//whether !infofarm sound is on cooldown
-var screamCooldown = false;			//whether !scream sound is in cooldown
+var shootCooldown = false;			//whether !shoot sound is in cooldown
 var hour = 0;						//hour of playing the game
 var queue = [];						//current queue
 var game = 1;						//current game
@@ -81,7 +83,7 @@ const options = {
 		reconnect: true,
 	},
 	identity: {
-		username: 'xxxxxxxxxxxxx',
+ 		username: 'xxxxxxxxxxxxx',
 		password: 'oauth:xxxxxxxxxxxxxxxxxxxxxxxxxxxxx',
 	},
 	channels: ['beyondtheed'],
@@ -879,6 +881,16 @@ client.on('chat', (channel, user, message, self) => {
 		  farmCooldown = false;
 		}, 300000); 
 		recording.play();
+	}
+	
+	//Makes shoot command play Shroder's voice
+	if(message === '!shoot' && !shootCooldown){
+		shootCooldown = true;
+		setTimeout(() => {
+		  // Removes farmCooldown after 1 minute (60000)
+		  shootCooldown = false;
+		}, 60000); 
+		recording2.play();
 	}
 	
 	//FIRST TIME USER CHAT BOT RESPONSES
