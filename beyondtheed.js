@@ -83,7 +83,7 @@ const options = {
 		reconnect: true,
 	},
 	identity: {
- 		username: 'xxxxxxxxxxxxx',
+  		username: 'xxxxxxxxxxxxx',
 		password: 'oauth:xxxxxxxxxxxxxxxxxxxxxxxxxxxxx',
 	},
 	channels: ['beyondtheed'],
@@ -850,10 +850,10 @@ client.on('chat', (channel, user, message, self) => {
 	if(message === '!remind'){
 		client.say('beyondtheed', "~USE YOUR SPECIALS JEN~");
 	}
-	
+/* 	
 	if(message === '!break'){
 		client.say('beyondtheed', '~TAKE A BREAK JEN~');
-	}
+	} */
 	
 	if(message === '!save'){
 		if(user["display-name"] === "beyondtheed"){
@@ -874,23 +874,42 @@ client.on('chat', (channel, user, message, self) => {
 	//SOUNDS
 	
 	//Makes infofarm command play Shroder's voice
-	if(message === '!infofarm' && !farmCooldown){
-		farmCooldown = true;
-		setTimeout(() => {
-		  // Removes farmCooldown after 5 minutes (300000)
-		  farmCooldown = false;
-		}, 300000); 
-		recording.play();
+	if(message === '!infofarm'){
+		if(user["display-name"] === "beyondtheed"){
+			//Jen has no cooldown.
+			recording.play();
+		}
+		else if(!farmCooldown){
+			farmCooldown = true;
+			setTimeout(() => {
+			  // Removes farmCooldown after 5 minutes (300000)
+			  farmCooldown = false;
+			}, 300000); 
+			recording.play();
+		}
+		else{
+			client.say("beyondtheed", "Sorry, !infofarm is on cooldown.");
+		}
 	}
 	
+	
 	//Makes shoot command play Shroder's voice
-	if(message === '!shoot' && !shootCooldown){
-		shootCooldown = true;
-		setTimeout(() => {
-		  // Removes farmCooldown after 1 minute (60000)
-		  shootCooldown = false;
-		}, 60000); 
-		recording2.play();
+	if(message === '!shoot'){
+		if(user["display-name"] === "beyondtheed"){
+			//Jen has no cooldown.
+			recording2.play();
+		}
+		else if(!shootCooldown){
+			shootCooldown = true;
+			setTimeout(() => {
+			  // Removes farmCooldown after 1 minute (60000)
+			  shootCooldown = false;
+			}, 60000); 
+			recording2.play();
+		}
+		else{
+			client.say("beyondtheed", "Sorry, !shoot is on cooldown.");
+		}
 	}
 	
 	//FIRST TIME USER CHAT BOT RESPONSES

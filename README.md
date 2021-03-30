@@ -63,6 +63,10 @@ likely will be of little use to you. If you still want to use it though, here ar
 
 1. Added !shoot sound command. 
 
+### March 29, 2021 Update  
+
+1. No cooldown for !shoot and !infofarm when broadcaster uses the commands. 
+
 
 
 
