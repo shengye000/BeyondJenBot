@@ -1,10 +1,10 @@
 // TODO LIST: 
 // Maybe reset timer for queue reminder?
-// !shoot with 1 minute cooldown
 
 const Audic = require("audic")
 const recording = new Audic("Shroder.mp3");
 const recording2 = new Audic("Shoooo.mp3");
+var lurkers = {};
 var farmCooldown = false;			//whether !infofarm sound is on cooldown
 var shootCooldown = false;			//whether !shoot sound is in cooldown
 var hour = 0;						//hour of playing the game
@@ -15,6 +15,7 @@ var fs = require('fs')				//read and write required stuff
 var kheelsFirstTime = true;			//if Kheels has not talked yet
 var forestFirstTime = true; 		//if Forest has not talked yet
 var clashFirstTime = true;			//if Clash has not talked yet
+var cosyFirstTime = true;			//if Cosy has not talked yet
 var queueTime = 360000;				//360000 = 6 minutes
 var hourlyTime = 3600000; 			//3600000 = 1 hour
 var varQueueInterval = setInterval(queueInterval, queueTime); 
@@ -72,6 +73,30 @@ function isRealValue(obj)
 	return obj && obj !== 'null' && obj !== 'undefined';
 }
 
+//get readable time
+function parseTime(milliseconds){
+	 //Get hours from milliseconds
+	 var hours = milliseconds / (1000*60*60);
+	 var absoluteHours = Math.floor(hours);
+
+	 //Get remainder from hours and convert to minutes
+	 var minutes = (hours - absoluteHours) * 60;
+	 var absoluteMinutes = Math.floor(minutes);
+
+	 //Get remainder from minutes and convert to seconds
+	 var seconds = (minutes - absoluteMinutes) * 60;
+	 var absoluteSeconds = Math.floor(seconds);
+
+	var string = "";
+	if(absoluteHours > 0){
+		string += absoluteHours + ' hours, ';
+	}
+	if(absoluteMinutes > 0){
+		string += absoluteMinutes + ' minutes, ';
+	}
+	return string + absoluteSeconds + ' seconds';
+}
+
 const tmi = require('tmi.js');
 
 const options = {
@@ -83,7 +108,7 @@ const options = {
 		reconnect: true,
 	},
 	identity: {
-  		username: 'xxxxxxxxxxxxx',
+		username: 'xxxxxxxxxxxxx',
 		password: 'oauth:xxxxxxxxxxxxxxxxxxxxxxxxxxxxx',
 	},
 	channels: ['beyondtheed'],
@@ -111,7 +136,6 @@ client.on('connected', (address, port) => {
 	else{
 		client.action('beyondtheed' , 'is now awake. There is no previous save data, so all counters are thus set at zero. You can find a list of commands by typing "!help <type>", where <type> can be "fun", "queue", "game", "yawn", "special", "farm", "swear", or "misc". (Example: "!help yawn").');
 	}
-	
 });
 
 client.on('chat', (channel, user, message, self) => {
@@ -723,7 +747,7 @@ client.on('chat', (channel, user, message, self) => {
 	
 	//Everybody, all miscellaneous commands
 	if(message === '!help8' || message === '!help misc'){
-		client.say('beyondtheed', 'Type "!hi" to use beyond88SmallHi. Type "!nap" to use beyond88SmallNap. Type "!claus" to use beyond88SmallClaus. Type "!trolldie" to use beyond88TrolldieHype. Type "!off" to turn off notifications. Type "!on" to turn on notifications. Type "!counter" to see all the current counters. Type "!w3" to remind Jen it is wave 3. Type "!w3stats" or "!w3stats <username> to see stats about the !w3 command. Type "!w3top10" to see the top 10 (or less) callers of !w3.');
+		client.say('beyondtheed', 'Type "!hi" to use beyond88SmallHi. Type "!nap" to use beyond88SmallNap. Type "!claus" to use beyond88SmallClaus. Type "!trolldie" to use beyond88TrolldieHype. Type "!off" to turn off notifications. Type "!on" to turn on notifications. Type "!counter" to see all the current counters. Type "!w3" to remind Jen it is wave 3. Type "!w3stats" or "!w3stats <username> to see stats about the !w3 command. Type "!w3top10" to see the top 10 (or less) callers of !w3. Type "!lurk" to go into lurk mode.');
 	}
 	
 	//Emote of hi
@@ -832,9 +856,30 @@ client.on('chat', (channel, user, message, self) => {
 		texts = texts.toString().replace(/,/g, ', ');
 		client.say('beyondtheed', "The top 10 (or less) users of !w3 are: " + texts + ".");
 	}
+	
 	//show a list of all the counters
 	if(message === '!counter' || message === '!counters'){
 		client.say('beyondtheed', 'Fun Counter: ' + counters.fun + ', Yawn Counter: ' + counters.yawn + ', Special Counter: ' + counters.special + ', Farm Counter: ' + counters.farm + ', Swear Counter: ' + counters.swear + ', Wave 3 Counter: '+ counters.w3 + '.');
+	}
+	
+	//go into lurk mode
+	if(message === '!lurk'){
+		if(user["display-name"] in lurkers){
+			client.say("beyondtheed", "@" + user["display-name"] + " is already lurking!");
+		}
+		else{
+			var name = user["display-name"];
+			lurkers[name] = Date.now();
+			client.say("beyondtheed", "@" + user["display-name"] + " is now lurking in the ink! DON'T PAY ANY ATTENTION TO " + user["display-name"] + ".");
+		}
+	}
+	
+	//get out of lurk mode by saying anything in chat besides !lurk
+	if(user["display-name"] in lurkers && message !== '!lurk'){
+		var name = user["display-name"];
+		const difference = Date.now() - lurkers[name];
+		delete lurkers[name];
+		client.say("beyondtheed", "@" + user["display-name"] + " just swam out of the ink after " + parseTime(difference) + ".");
 	}
 		
 	//HIDDEN COMMANDS aka not shown in the !help. 
@@ -850,10 +895,10 @@ client.on('chat', (channel, user, message, self) => {
 	if(message === '!remind'){
 		client.say('beyondtheed', "~USE YOUR SPECIALS JEN~");
 	}
-/* 	
+ 	
 	if(message === '!break'){
 		client.say('beyondtheed', '~TAKE A BREAK JEN~');
-	} */
+	} 
 	
 	if(message === '!save'){
 		if(user["display-name"] === "beyondtheed"){
@@ -913,7 +958,6 @@ client.on('chat', (channel, user, message, self) => {
 	}
 	
 	//FIRST TIME USER CHAT BOT RESPONSES
-	
 	if(user["display-name"] === "ForestGrump8" && forestFirstTime){
 		forestFirstTime = false;
 		client.say('beyondtheed', '@ForestGrump8 How was your day today Forest? beyond88SmallHi');
@@ -927,5 +971,10 @@ client.on('chat', (channel, user, message, self) => {
 	if(user["display-name"] === "Killerheels" && kheelsFirstTime){
 		kheelsFirstTime = false;
 		client.say('beyondtheed', '👁️ 👄 👁️ ');
+	}
+	
+	if(user["display-name"] === "cosyanet" && cosyFirstTime){
+		cosyFirstTime = false;
+		client.say('beyondtheed', 'beyond88TrolldieHype');
 	}
 });

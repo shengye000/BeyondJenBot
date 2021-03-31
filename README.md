@@ -67,6 +67,11 @@ likely will be of little use to you. If you still want to use it though, here ar
 
 1. No cooldown for !shoot and !infofarm when broadcaster uses the commands. 
 
+### March 30, 2021 Update  
+
+1. Cosy intro added.
+2. !lurk command added to announce when people go into lurk mode.
+3. Return message for lurkers saying how long they were lurking. 
 
 
 
