@@ -73,5 +73,9 @@ likely will be of little use to you. If you still want to use it though, here ar
 2. !lurk command added to announce when people go into lurk mode.
 3. Return message for lurkers saying how long they were lurking. 
 
+### April 21, 2021 Update  
+
+1. Added !cake and !baby sound commands. 
+
 
 

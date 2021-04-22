@@ -2,11 +2,11 @@
 // Maybe reset timer for queue reminder?
 
 const Audic = require("audic")
-const recording = new Audic("Shroder.mp3");
-const recording2 = new Audic("Shoooo.mp3");
 var lurkers = {};
 var farmCooldown = false;			//whether !infofarm sound is on cooldown
 var shootCooldown = false;			//whether !shoot sound is in cooldown
+var cakeCooldown = false;			//whether !cake sound is on cooldown
+var babyCooldown = false;			//whether !baby sounds is on cooldown
 var hour = 0;						//hour of playing the game
 var queue = [];						//current queue
 var game = 1;						//current game
@@ -921,16 +921,22 @@ client.on('chat', (channel, user, message, self) => {
 	//Makes infofarm command play Shroder's voice
 	if(message === '!infofarm'){
 		if(user["display-name"] === "beyondtheed"){
+			const recording = new Audic("Shroder.mp3");
 			//Jen has no cooldown.
 			recording.play();
+			setTimeout(() => {
+				recording.destroy();
+			}, 10000)
 		}
 		else if(!farmCooldown){
 			farmCooldown = true;
+			const recording = new Audic("Shroder.mp3");
+			recording.play();
 			setTimeout(() => {
 			  // Removes farmCooldown after 5 minutes (300000)
+			  recording.destroy();
 			  farmCooldown = false;
 			}, 300000); 
-			recording.play();
 		}
 		else{
 			client.say("beyondtheed", "Sorry, !infofarm is on cooldown.");
@@ -941,19 +947,78 @@ client.on('chat', (channel, user, message, self) => {
 	//Makes shoot command play Shroder's voice
 	if(message === '!shoot'){
 		if(user["display-name"] === "beyondtheed"){
+			const recording2 = new Audic("Shoooo.mp3");
 			//Jen has no cooldown.
 			recording2.play();
+			setTimeout(() => {
+				recording2.destroy();
+			}, 7500)
 		}
 		else if(!shootCooldown){
 			shootCooldown = true;
+			const recording2 = new Audic("Shoooo.mp3");
+			recording2.play();
 			setTimeout(() => {
 			  // Removes farmCooldown after 1 minute (60000)
+			  recording2.destroy();
 			  shootCooldown = false;
 			}, 60000); 
-			recording2.play();
+			
 		}
 		else{
 			client.say("beyondtheed", "Sorry, !shoot is on cooldown.");
+		}
+	}
+	
+	//cake sound command.
+	if(message === '!cake'){
+		if(user["display-name"] === "beyondtheed"){
+			const recording = new Audic("Cake.mp3");
+			//Jen has no cooldown.
+			recording.play();
+			setTimeout(() => {
+				recording.destroy();
+			}, 7500)
+		}
+		else if(!cakeCooldown){
+			cakeCooldown = true;
+			const recording = new Audic("Cake.mp3");
+			recording.play();
+			setTimeout(() => {
+			  // Removes cakeCooldown after 5 minutes (300000)
+			  recording.destroy();
+			  cakeCooldown = false;
+			}, 300000); 
+
+		}
+		else{
+			client.say("beyondtheed", "Sorry, !cake is on cooldown.");
+		}
+	}
+	
+	//baby sound command
+	if(message === '!baby'){
+		if(user["display-name"] === "beyondtheed"){
+			const recording = new Audic("Baby.mp3");
+			//Jen has no cooldown.
+			recording.play();
+			setTimeout(() => {
+				recording.destroy();
+			}, 5000)
+		}
+		else if(!babyCooldown){
+			babyCooldown = true;
+			const recording = new Audic("Baby.mp3");
+			recording.play();
+			setTimeout(() => {
+			  // Removes babyCooldown after 5 minutes (300000)
+			  recording.destroy();
+			  babyCooldown = false;
+			}, 300000); 
+			
+		}
+		else{
+			client.say("beyondtheed", "Sorry, !baby is on cooldown.");
 		}
 	}
 	
