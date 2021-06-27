@@ -83,5 +83,7 @@ likely will be of little use to you. If you still want to use it though, here ar
 2. Added !cry for fifth emote.
 3. Streamer added the !ohno earlier, now it's on my repo here.  
 
+### June 27, 2021 Update
 
-
+1. Fixed a bug where Jen doesn't have cooldown isn't working.
+2. Added who said what in regards to TTS. 

@@ -1,5 +1,9 @@
 // TODO LIST: 
 // Maybe reset timer for queue reminder?
+// counters not working reading from file?
+// Maybe make a no permission for all TTS other commands. 
+// Custom cooldown setter?
+// TTS queue?
  
 const Audic = require("audic")
 const say = require('say')
@@ -140,8 +144,8 @@ const options = {
 		reconnect: true,
 	},
 	identity: {
-		username: 'BeyondJenBot',
-		password: 'oauth:xxxxxxxxxxxxxxxxxxxxxxxxxx',
+ 		username: 'BeyondJenBot',
+		password: 'oauth:xxxxxxxxxxxxxxxxxxxxxxxxxx', 
 	},
 	channels: ['beyondtheed'],
 };
@@ -794,6 +798,11 @@ client.on('chat', (channel, user, message, self) => {
 		if(ttsOn === false){
 			client.say('beyondtheed', 'Sorry, TTS is turned off right now.')
 		}
+		else if(user["display-name"] === "beyondtheed"){
+			//Jen no cooldown.
+			var toSay = message.substr(message.indexOf(" ") + 1);
+			say.speak(user["display-name"] + "says: " + toSay);
+		}
 		else if(message === "!tts"){
 			client.say('beyondtheed', 'There is no TTS message to read. Add the message after the !tts command. (EX: !tts hello chat.)')
 		}
@@ -808,18 +817,15 @@ client.on('chat', (channel, user, message, self) => {
 		//say message
 		else
 		{
-			//Jen no cooldown.
-			if(user["display-name"] !== "beyondtheed"){
-				ttsCooldown = true;
-				setTimeout(() => {
-				//1 minute TTS Cooldown
-					say.stop();
-					ttsCooldown = false;
-				}, 60000); 
-			}
 
+			ttsCooldown = true;
+			setTimeout(() => {
+			//1 minute TTS Cooldown
+				say.stop();
+				ttsCooldown = false;
+			}, 60000); 
 			var toSay = message.substr(message.indexOf(" ") + 1);
-			say.speak(toSay);
+			say.speak(user["display-name"] + " says: " + toSay);
 		}
 	}
 	
