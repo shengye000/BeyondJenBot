@@ -1,12 +1,16 @@
 // TODO LIST: 
 // Maybe reset timer for queue reminder?
-
+ 
 const Audic = require("audic")
-var lurkers = {};
+const say = require('say')
+var ttsCooldown = false				//if TTS is in cooldown
+var ttsOn = true					//if TTS is enabled. Default is on
+var lurkers = {};					//List of lurkers
 var farmCooldown = false;			//whether !infofarm sound is on cooldown
 var shootCooldown = false;			//whether !shoot sound is in cooldown
 var cakeCooldown = false;			//whether !cake sound is on cooldown
 var babyCooldown = false;			//whether !baby sounds is on cooldown
+var ohnoCooldown = false;			//whether !ohno sounds is on cooldown
 var hour = 0;						//hour of playing the game
 var queue = [];						//current queue
 var game = 1;						//current game
@@ -24,7 +28,7 @@ var notification = true;
 
 
 //counters that can be saved
-var counters = {fun: 0, yawn: 0, special: 0, farm: 0, swear: 0, w3: 0, w3users: {}}
+var counters = {fun: 0, yawn: 0, special: 0, farm: 0, swear: 0, w3: 0, w3users: {}, ttsBan: []}
 
 function queueInterval() {
 	if(queue.length !== 0){
@@ -58,6 +62,34 @@ function saveCounters(type){
 			console.log(type + ".text save failed.");
 		} 
 	})
+	//save for next time usage
+	fs.writeFile('counters.txt', JSON.stringify(counters), (err) => {
+		if (err){
+			console.log("counters.text save failed.");
+		} 
+	});
+	return 0;
+}
+
+function saveTTS(type, name){
+	var dt = new Date().toLocaleString();
+	var str = dt + "(" + type + ")" + " = " + name + ' \n';
+	if(type === "ban"){
+		fs.appendFile('tts.txt', str, function (err) {
+			if (err) {
+				// save failed
+				console.log("tts.text save failed.");
+			} 
+		})
+	}
+	if(type === "unban"){
+		fs.appendFile('tts.txt', str, function (err) {
+			if (err) {
+				// save failed
+				console.log("tts.text save failed.");
+			} 
+		})
+	}
 	//save for next time usage
 	fs.writeFile('counters.txt', JSON.stringify(counters), (err) => {
 		if (err){
@@ -108,8 +140,8 @@ const options = {
 		reconnect: true,
 	},
 	identity: {
-		username: 'xxxxxxxxxxxxx',
-		password: 'oauth:xxxxxxxxxxxxxxxxxxxxxxxxxxxxx',
+		username: 'BeyondJenBot',
+		password: 'oauth:xxxxxxxxxxxxxxxxxxxxxxxxxx',
 	},
 	channels: ['beyondtheed'],
 };
@@ -719,6 +751,7 @@ client.on('chat', (channel, user, message, self) => {
 		}
 	}
 	
+	
 	//VIP and Jen, manually set Swear Counter
 	if (message.startsWith("!setswear")) {
 		if(user["display-name"] === "beyondtheed" || (isRealValue(user["badges"]) && ('vip' in user["badges"]))){
@@ -742,12 +775,129 @@ client.on('chat', (channel, user, message, self) => {
 	if(message === '!currswear'){
 		client.say('beyondtheed', 'Currently, the Swear Counter is at: ' + counters.swear + '.');
 	}
+
+		
+	//TTS
+	//TTS help
+	if(message === '!help8' || message === '!help tts'){
+		client.say('beyondtheed', 'Type "!ttstest" to test TTS. Type "!tts <mesage>" for the computer to read your message. Type "!skip" to skip a TTS. Type "!ttsban <username>" to ban someone from TTS. Type "!ttsunban <username>" to unban someone from TTS. Type "!ttsoff" to turn of TTS, and "!ttson" to turn on TTS. ');
+	}
+	
+	//Simple test to see if TTS works currently. Jen only.
+	if(user["display-name"] === "beyondtheed" && message === "!ttstest" && ttsOn) {
+		say.speak("TTS is working right now!");
+	}
+	
+	//TTS to say something
+	if(message.startsWith("!tts") && message.split(" ")[0] === "!tts"){
+		//no message
+		if(ttsOn === false){
+			client.say('beyondtheed', 'Sorry, TTS is turned off right now.')
+		}
+		else if(message === "!tts"){
+			client.say('beyondtheed', 'There is no TTS message to read. Add the message after the !tts command. (EX: !tts hello chat.)')
+		}
+		//banned people not allowed
+		else if(counters["ttsBan"].includes(user["display-name"])){
+			client.say('beyondtheed', "Sorry @" + user["display-name"] + ", you are banned from using the !tts command. ");
+		}
+		//in cooldown
+		else if(ttsCooldown){
+			client.say('beyondtheed', "Sorry @" + user["display-name"] + ", TTS is still on cooldown. ");
+		}
+		//say message
+		else
+		{
+			//Jen no cooldown.
+			if(user["display-name"] !== "beyondtheed"){
+				ttsCooldown = true;
+				setTimeout(() => {
+				//1 minute TTS Cooldown
+					say.stop();
+					ttsCooldown = false;
+				}, 60000); 
+			}
+
+			var toSay = message.substr(message.indexOf(" ") + 1);
+			say.speak(toSay);
+		}
+	}
+	
+	//skip TTS donation.
+	if(user["display-name"] === "beyondtheed" && message === "!skip"){
+		say.stop();
+	}
+	
+	//ban someone from TTS. Jen only.
+	if(user["display-name"] === "beyondtheed" && message.startsWith("!ttsban")){
+		if(message === "!ttsban" || message.split(" ").length != 2){
+			client.say("beyondtheed", "!ttsban Error! You either did not put in somebody to ban or put more than two words in the command.")
+		}
+		else{
+			//Get username, get rid of @ if there
+			var input = message.split(' ')[1];
+			if(input.charAt(0) == '@'){
+				input = input.substring(1);
+			}
+			if(counters["ttsBan"].includes(user["display-name"])){
+				client.say("beyondtheed", "@" + input + " has already been banned!");
+			}
+			else{
+				counters["ttsBan"].push(input);
+				saveTTS("ban", input)
+				client.say("beyondtheed", "@" + input + " has been banned from using TTS!");
+			}
+		}
+	}
+	
+	//unban someoen from TTS. Jen only.
+	if(user["display-name"] === "beyondtheed" && message.startsWith("!ttsunban")){
+		if(message === "!ttsunban"  || message.split(" ").length != 2){
+			client.say("beyondtheed", "!ttsunban Error! You either did not put in somebody to unban or put more than two words in the command.")
+		}
+		else{
+			var input = message.split(' ')[1];
+			if(input.charAt(0) == '@'){
+				input = input.substring(1);
+			}
+			if(counters["ttsBan"].includes(user["display-name"])){
+				counters["ttsBan"] = counters["ttsBan"].filter(e => e !== input); 
+				saveTTS("unban", input)
+				client.say("beyondtheed", "@" + input + " has been unbanned!");
+			}
+			else{
+				client.say("beyondtheed", "@" + input + " was never banned from using TTS!");
+			}
+		}
+	}
+	
+	//turn off TTS
+	if(user["display-name"] === "beyondtheed" && message === "!ttsoff"){
+		if(ttsOn === true){
+			ttsOn = false;		
+			client.say("beyondtheed", "TTS has been turned off.");
+		}
+		else{
+			client.say("beyondtheed", "TTS is already off.");
+		}
+	}
+	
+	//turn on TTS
+	if(user["display-name"] === "beyondtheed" && message === "!ttson"){
+		if(ttsOn === true){			
+			client.say("beyondtheed", "TTS is already on.");
+		}
+		else{
+			ttsOn = true;
+			client.say("beyondtheed", "TTS has been turned on.");
+		}
+	}
 	
 	//MISC
 	
 	//Everybody, all miscellaneous commands
-	if(message === '!help8' || message === '!help misc'){
-		client.say('beyondtheed', 'Type "!hi" to use beyond88SmallHi. Type "!nap" to use beyond88SmallNap. Type "!claus" to use beyond88SmallClaus. Type "!trolldie" to use beyond88TrolldieHype. Type "!off" to turn off notifications. Type "!on" to turn on notifications. Type "!counter" to see all the current counters. Type "!w3" to remind Jen it is wave 3. Type "!w3stats" or "!w3stats <username> to see stats about the !w3 command. Type "!w3top10" to see the top 10 (or less) callers of !w3. Type "!lurk" to go into lurk mode.');
+	if(message === '!help9' || message === '!help misc'){
+		client.say('beyondtheed', 'Type "!hi" = beyond88SmallHi, "!nap" = beyond88SmallNap, "!claus" = beyond88SmallClaus, "!trolldie" = beyond88TrolldieHype, "!cry" = beyond88CriDrizz. Type "!off" to turn off notifications. Type "!on" to turn on notifications. Type "!counter" to see all the current counters. Type "!w3" to remind Jen it is wave 3. Type "!w3stats" or "!w3stats <username> to see stats about the !w3 command. Type "!w3top10" to see the top 10 (or less) callers of !w3. Type "!lurk" to go into lurk mode.');
 	}
 	
 	//Emote of hi
@@ -767,6 +917,10 @@ client.on('chat', (channel, user, message, self) => {
 	
 	if(message === '!trolldie'){
 		client.say('beyondtheed', 'beyond88TrolldieHype');
+	}
+	
+	if(message === 'cry'){
+		client.say('beyondtheed', 'beyond88CriDrizz');
 	}
 	
 	//turn off notifications
@@ -885,7 +1039,7 @@ client.on('chat', (channel, user, message, self) => {
 	//HIDDEN COMMANDS aka not shown in the !help. 
 	
 	if(message === '!help'){
-		client.say('beyondtheed', 'You can find a list of commands by typing "!help <type>", where <type> can be "fun", "queue", "game", "yawn", "special", "farm", "swear", or "misc". (Example: "!help yawn").');
+		client.say('beyondtheed', 'You can find a list of commands by typing "!help <type>", where <type> can be "fun", "queue", "game", "yawn", "special", "farm", "swear", "tts", or "misc". (Example: "!help yawn").');
 	}
 	
 	if(message === '!egg'){
@@ -969,30 +1123,56 @@ client.on('chat', (channel, user, message, self) => {
 			client.say("beyondtheed", "Sorry, !shoot is on cooldown.");
 		}
 	}
-	
-	//cake sound command.
+
+	//Makes shoot command play Jen's voice
 	if(message === '!cake'){
 		if(user["display-name"] === "beyondtheed"){
-			const recording = new Audic("Cake.mp3");
+			const recording2 = new Audic("Cake.mp3");
+			//Jen has no cooldown.
+			recording2.play();
+			setTimeout(() => {
+				recording2.destroy();
+			}, 7500)
+		}
+		else if(!cakeCooldown){
+			cakeCooldown = true;
+			const recording2 = new Audic("Cake.mp3");
+			recording2.play();
+			setTimeout(() => {
+			  // Removes cakeCooldown after 1 minute (60000)
+			  recording2.destroy();
+			  cakeCooldown = false;
+			}, 60000); 
+			
+		}
+		else{
+			client.say("beyondtheed", "Sorry, !cake is on cooldown.");
+		}
+	}
+
+	//ohno sound command.
+	if(message === '!ohno'){
+		if(user["display-name"] === "beyondtheed"){
+			const recording = new Audic("OhNo.mp3");
 			//Jen has no cooldown.
 			recording.play();
 			setTimeout(() => {
 				recording.destroy();
 			}, 7500)
 		}
-		else if(!cakeCooldown){
-			cakeCooldown = true;
-			const recording = new Audic("Cake.mp3");
+		else if(!ohnoCooldown){
+			ohnoCooldown = true;
+			const recording = new Audic("OhNo.mp3");
 			recording.play();
 			setTimeout(() => {
-			  // Removes cakeCooldown after 5 minutes (300000)
+			  // Removes ohnoCooldown after 5 minutes (300000)
 			  recording.destroy();
-			  cakeCooldown = false;
+			  ohnoCooldown = false;
 			}, 300000); 
 
 		}
 		else{
-			client.say("beyondtheed", "Sorry, !cake is on cooldown.");
+			client.say("beyondtheed", "Sorry, !ohno is on cooldown.");
 		}
 	}
 	

@@ -77,5 +77,11 @@ likely will be of little use to you. If you still want to use it though, here ar
 
 1. Added !cake and !baby sound commands. 
 
+### June 26, 2021 Update
+
+1. Added TTS and a bunch of TTS commands.
+2. Added !cry for fifth emote.
+3. Streamer added the !ohno earlier, now it's on my repo here.  
+
 
 
