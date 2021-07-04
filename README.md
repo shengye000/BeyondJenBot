@@ -87,3 +87,8 @@ likely will be of little use to you. If you still want to use it though, here ar
 
 1. Fixed a bug where Jen doesn't have cooldown isn't working.
 2. Added who said what in regards to TTS. 
+
+### July 4, 2021 Update
+
+1. Removed TTS cooldown and instead added a TTS queue system.
+2. Added !ttsclear to remove all upcoming TTS in the queue. 

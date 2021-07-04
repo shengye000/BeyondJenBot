@@ -1,14 +1,13 @@
 // TODO LIST: 
 // Maybe reset timer for queue reminder?
-// counters not working reading from file?
 // Maybe make a no permission for all TTS other commands. 
-// Custom cooldown setter?
-// TTS queue?
- 
+// add TTS to the bot awake call.
+
 const Audic = require("audic")
 const say = require('say')
-var ttsCooldown = false				//if TTS is in cooldown
 var ttsOn = true					//if TTS is enabled. Default is on
+var ttsQueue = []
+
 var lurkers = {};					//List of lurkers
 var farmCooldown = false;			//whether !infofarm sound is on cooldown
 var shootCooldown = false;			//whether !shoot sound is in cooldown
@@ -133,6 +132,15 @@ function parseTime(milliseconds){
 	return string + absoluteSeconds + ' seconds';
 }
 
+function ttsReader(){
+	say.speak(ttsQueue[0], null, 1.0, (err) => {
+		ttsQueue = ttsQueue.slice(1);
+		if(ttsQueue.length > 0){
+			ttsReader();
+		}
+	});
+}
+
 const tmi = require('tmi.js');
 
 const options = {
@@ -144,7 +152,7 @@ const options = {
 		reconnect: true,
 	},
 	identity: {
- 		username: 'BeyondJenBot',
+		username: 'BeyondJenBot',
 		password: 'oauth:xxxxxxxxxxxxxxxxxxxxxxxxxx', 
 	},
 	channels: ['beyondtheed'],
@@ -784,7 +792,7 @@ client.on('chat', (channel, user, message, self) => {
 	//TTS
 	//TTS help
 	if(message === '!help8' || message === '!help tts'){
-		client.say('beyondtheed', 'Type "!ttstest" to test TTS. Type "!tts <mesage>" for the computer to read your message. Type "!skip" to skip a TTS. Type "!ttsban <username>" to ban someone from TTS. Type "!ttsunban <username>" to unban someone from TTS. Type "!ttsoff" to turn of TTS, and "!ttson" to turn on TTS. ');
+		client.say('beyondtheed', 'Type "!ttstest" to test TTS. Type "!tts <mesage>" for the computer to read your message. Type "!skip" to skip a TTS. Type "!ttsban <username>" to ban someone from TTS. Type "!ttsunban <username>" to unban someone from TTS. Type "!ttsoff" to turn of TTS (Note: all TTS in queue will be deleted!) , and "!ttson" to turn on TTS. Type "!ttsclear" to clear the TTS queue. ');
 	}
 	
 	//Simple test to see if TTS works currently. Jen only.
@@ -795,43 +803,33 @@ client.on('chat', (channel, user, message, self) => {
 	//TTS to say something
 	if(message.startsWith("!tts") && message.split(" ")[0] === "!tts"){
 		//no message
-		if(ttsOn === false){
+		if(message === "!tts"){
+			client.say('beyondtheed', 'Add a message after the !tts command to have a text-to-speech reader read your message. (EX: !tts hello chat.)')
+		}
+		else if(ttsOn === false){
 			client.say('beyondtheed', 'Sorry, TTS is turned off right now.')
-		}
-		else if(user["display-name"] === "beyondtheed"){
-			//Jen no cooldown.
-			var toSay = message.substr(message.indexOf(" ") + 1);
-			say.speak(user["display-name"] + "says: " + toSay);
-		}
-		else if(message === "!tts"){
-			client.say('beyondtheed', 'There is no TTS message to read. Add the message after the !tts command. (EX: !tts hello chat.)')
 		}
 		//banned people not allowed
 		else if(counters["ttsBan"].includes(user["display-name"])){
 			client.say('beyondtheed', "Sorry @" + user["display-name"] + ", you are banned from using the !tts command. ");
 		}
-		//in cooldown
-		else if(ttsCooldown){
-			client.say('beyondtheed', "Sorry @" + user["display-name"] + ", TTS is still on cooldown. ");
-		}
 		//say message
 		else
 		{
-
-			ttsCooldown = true;
-			setTimeout(() => {
-			//1 minute TTS Cooldown
-				say.stop();
-				ttsCooldown = false;
-			}, 60000); 
 			var toSay = message.substr(message.indexOf(" ") + 1);
-			say.speak(user["display-name"] + " says: " + toSay);
+			if(ttsQueue.length != 0){
+				ttsQueue.push(user["display-name"] + " says: " + toSay);
+			}
+			else{
+				ttsQueue.push(user["display-name"] + " says: " + toSay);
+				ttsReader();
+			}
 		}
 	}
 	
 	//skip TTS donation.
 	if(user["display-name"] === "beyondtheed" && message === "!skip"){
-		say.stop();
+		say.stop();		
 	}
 	
 	//ban someone from TTS. Jen only.
@@ -856,7 +854,7 @@ client.on('chat', (channel, user, message, self) => {
 		}
 	}
 	
-	//unban someoen from TTS. Jen only.
+	//unban someone from TTS. Jen only.
 	if(user["display-name"] === "beyondtheed" && message.startsWith("!ttsunban")){
 		if(message === "!ttsunban"  || message.split(" ").length != 2){
 			client.say("beyondtheed", "!ttsunban Error! You either did not put in somebody to unban or put more than two words in the command.")
@@ -880,7 +878,11 @@ client.on('chat', (channel, user, message, self) => {
 	//turn off TTS
 	if(user["display-name"] === "beyondtheed" && message === "!ttsoff"){
 		if(ttsOn === true){
-			ttsOn = false;		
+			ttsOn = false;	
+			if(ttsQueue.length > 0){
+				ttsQueue = [];
+				say.stop();
+			}
 			client.say("beyondtheed", "TTS has been turned off.");
 		}
 		else{
@@ -896,6 +898,14 @@ client.on('chat', (channel, user, message, self) => {
 		else{
 			ttsOn = true;
 			client.say("beyondtheed", "TTS has been turned on.");
+		}
+	}
+	
+	//Clear the TTS queue
+	if(user["display-name"] === "beyondtheed" && message === "!ttsclear"){
+		if(ttsQueue.length > 0){
+			ttsQueue = [];
+			say.stop();
 		}
 	}
 	
